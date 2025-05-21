@@ -1,0 +1,142 @@
+package game;
+
+import java.util.Random;  // Untuk angka acak
+import java.util.Scanner; // Untuk input user
+
+public class Game {
+
+    //Deklarasi variabel
+    static Scanner input = new Scanner(System.in);
+    static Random rand = new Random();
+    static String namaPemain;
+    static int menang = 0;
+    static int kalah = 0;
+
+    //Blok 1: Fungsi main 
+    public static void main(String[] args) throws InterruptedException {
+        System.out.print("\nMasukkan nama Anda: ");
+        namaPemain = input.nextLine();
+
+        String mainLagi;
+        do {
+            int urutan = pilihUrutan();
+            boolean isPlayerTurn = tentukanUrutan(urutan);
+
+            int angka = generateAngkaAwal();
+            System.out.println("\n[Permainan Dimulai]");
+            System.out.println("Angka awal: " + angka);
+            System.out.println("Urutan: " + (isPlayerTurn ? namaPemain + " lebih dulu" : "Komputer lebih dulu"));
+
+            while (true) {
+                if (isPlayerTurn) {
+                    angka = giliranPemain(angka);
+                    if (angka == 1) {
+                        menang++;
+                        System.out.println(namaPemain + " membuat stick menjadi 1");
+                        System.out.println("Komputer Kalah.");
+                        break;
+                    }
+                } else {
+                    angka = giliranKomputer(angka);
+                    if (angka == 1) {
+                        kalah++;
+                        System.out.println("Komputer membuat stick menjadi 1.");
+                        System.out.println(namaPemain + " kamu kalah.");
+                        break;
+                    }
+                }
+                isPlayerTurn = !isPlayerTurn;
+            }
+
+            while (true) {
+                System.out.print("\nMain lagi? (Ayo/Gak): ");
+                mainLagi = input.nextLine().trim().toUpperCase();
+                if (mainLagi.equals("AYO") || mainLagi.equals("GAK")) {
+                    break;
+                } else {
+                    System.out.println("Input tidak valid! Masukkan hanya 'Ayo' atau 'Gak'.");
+                }
+            }
+
+        } while (mainLagi.equals("AYO"));
+    }
+
+    // Blok 2: Fungsi pilihUrutan - pilih siapa yang mulai terlebih dahulu
+    public static int pilihUrutan() {
+        int pilihan = 0;
+        while (true) {
+            System.out.println("\nPilih urutan permainan:");
+            System.out.println("1. " + namaPemain + " lebih dulu");
+            System.out.println("2. Komputer lebih dulu");
+            System.out.println("3. Acak");
+            System.out.print("Masukkan pilihan (1-3): ");
+            try {
+                pilihan = Integer.parseInt(input.nextLine());
+                if (pilihan >= 1 && pilihan <= 3) {
+                    break;
+                } else {
+                    System.out.println("Input harus antara 1 dan 3!");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Input tidak valid! Harus berupa angka.");
+            }
+        }
+        return pilihan;
+    }
+
+    // Blok 3: Fungsi tentukanUrutan - kembalikan giliran berdasarkan pilihan
+    public static boolean tentukanUrutan(int urutan) {
+        switch (urutan) {
+            case 1: return true;
+            case 2: return false;
+            case 3: return rand.nextBoolean();
+            default: return true;
+        }
+    }
+
+    // Blok 4: Fungsi generateAngkaAwal - generate angka stick awal 10 hingga 30
+    public static int generateAngkaAwal() {
+        return rand.nextInt(21) + 10;
+    }
+
+    // Blok 5: Fungsi giliranPemain - saat giliran pemain 
+    public static int giliranPemain(int angka) {
+        int pengurangan = 0;
+        while (true) {
+            System.out.print("\nGiliran " + namaPemain + " - Berapa stick yang mau kamu ambil? (1-3): ");
+            try {
+                pengurangan = Integer.parseInt(input.nextLine());
+                if (pengurangan < 1 || pengurangan > 3) {
+                    System.out.println("Input harus 1-3!");
+                } else if (pengurangan >= angka) {
+                    System.out.println("Hanya boleh mengambil stick antara 1 hingga 3!");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Input tidak valid! Masukkan angka antara 1 hingga 3.");
+            }
+        }
+        angka -= pengurangan;
+        System.out.println("Stick sekarang: " + angka);
+        return angka;
+    }
+
+    // Blok 6: Fungsi giliranKomputer - saat giliran komputer 
+    public static int giliranKomputer(int angka) {
+        int pengurangan;
+        if ((angka - 1) % 4 == 0) {
+            pengurangan = rand.nextInt(3) + 1;
+        } else {
+            pengurangan = (angka - 1) % 4;
+        }
+        pengurangan = Math.min(pengurangan, angka - 1);
+
+        System.out.println("\nGiliran komputer...");
+        System.out.println("Komputer mengambil stick " + pengurangan);
+        angka -= pengurangan;
+        System.out.println("Sekarang stick menjadi: " + angka);
+        return angka;
+    }
+}
+
